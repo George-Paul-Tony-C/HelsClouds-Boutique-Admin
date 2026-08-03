@@ -233,12 +233,12 @@ export default function Products() {
 
                         <span
                           className={`rounded-full px-3 py-1 text-xs font-medium ${
-                            product.is_active
+                            product.is_available
                               ? "bg-green-100 text-green-700"
                               : "bg-red-100 text-red-700"
                           }`}
                         >
-                          {product.is_active
+                          {product.is_available
                             ? "Active"
                             : "Inactive"}
                         </span>

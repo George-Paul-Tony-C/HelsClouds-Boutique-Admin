@@ -31,7 +31,7 @@ export interface Product {
 
   display_order: number;
 
-  is_active: boolean;
+  is_available: boolean;
 
   created_at: string;
 
@@ -67,7 +67,7 @@ export interface ProductFormData {
 
   display_order: number;
 
-  is_active: boolean;
+  is_available: boolean;
 }
 
 export interface ProductImage {

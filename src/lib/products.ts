@@ -74,8 +74,8 @@ export async function createProduct(
       display_order:
         product.display_order,
 
-      is_active:
-        product.is_active,
+      is_available:
+        product.is_available,
     })
     .select()
     .single();
@@ -134,8 +134,8 @@ export async function updateProduct(
       display_order:
         product.display_order,
 
-      is_active:
-        product.is_active,
+      is_available:
+        product.is_available,
 
       updated_at:
         new Date().toISOString(),

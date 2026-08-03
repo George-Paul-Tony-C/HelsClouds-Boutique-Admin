@@ -49,7 +49,7 @@ const initialForm: ProductFormData = {
 
   display_order: 1,
 
-  is_active: true,
+  is_available: true,
 };
 
 export default function ProductForm({
@@ -138,8 +138,8 @@ export default function ProductForm({
       display_order:
         selectedProduct.display_order,
 
-      is_active:
-        selectedProduct.is_active,
+      is_available:
+        selectedProduct.is_available,
     });
 
     setPreview(
@@ -439,11 +439,11 @@ export default function ProductForm({
 
             <input
               type="checkbox"
-              checked={form.is_active}
+              checked={form.is_available}
               onChange={(e) =>
                 setForm({
                   ...form,
-                  is_active:
+                  is_available:
                     e.target.checked,
                 })
               }
