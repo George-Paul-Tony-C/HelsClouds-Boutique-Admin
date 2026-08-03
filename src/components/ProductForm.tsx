@@ -487,16 +487,21 @@ export default function ProductForm({
 
               if (selectedProduct) {
 
-                await updateProduct(
+                const product = await updateProduct(
                   selectedProduct.id,
                   payload
                 );
 
+                onSuccess(product);
+
               } else {
 
-                await createProduct(
+                const product = await createProduct(
                   payload
                 );
+
+                onSuccess(product);
+
 
               }
 
@@ -505,8 +510,6 @@ export default function ProductForm({
               setPreview("");
 
               setImageFile(null);
-
-              onSuccess();
 
             } catch (error) {
 

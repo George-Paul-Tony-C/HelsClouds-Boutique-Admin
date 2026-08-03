@@ -58,7 +58,6 @@ export async function createProduct(
 
       material: product.material,
       color: product.color,
-      care_instruction: product.care_instruction,
 
       featured_image_url:
         product.featured_image_url,
@@ -77,12 +76,6 @@ export async function createProduct(
 
       is_active:
         product.is_active,
-
-      seo_title:
-        product.seo_title,
-
-      seo_description:
-        product.seo_description,
     })
     .select()
     .single();
@@ -126,9 +119,6 @@ export async function updateProduct(
       color:
         product.color,
 
-      care_instruction:
-        product.care_instruction,
-
       featured_image_url:
         product.featured_image_url,
 
@@ -146,12 +136,6 @@ export async function updateProduct(
 
       is_active:
         product.is_active,
-
-      seo_title:
-        product.seo_title,
-
-      seo_description:
-        product.seo_description,
 
       updated_at:
         new Date().toISOString(),
