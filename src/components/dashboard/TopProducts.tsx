@@ -10,7 +10,7 @@ export default function TopProducts({
   products,
 }: TopProductsProps) {
   return (
-    <section className="rounded-xl border bg-white p-6">
+    <section className="rounded-xl border bg-white p-4 shadow-sm md:p-6">
 
       <div className="mb-6">
 
@@ -24,104 +24,198 @@ export default function TopProducts({
 
       </div>
 
-      <div className="space-y-4">
+      {products.length === 0 ? (
 
-        {products.length === 0 ? (
+        <div className="py-10 text-center text-slate-500">
+          No products found.
+        </div>
 
-          <div className="py-8 text-center text-slate-500">
-            No products found.
-          </div>
+      ) : (
 
-        ) : (
+        <div className="space-y-4">
 
-          products.map((product, index) => (
+          {products.map((product, index) => (
 
             <div
               key={product.product_id}
-              className="flex items-center gap-4 rounded-lg border p-4"
+              className="rounded-xl border p-4 transition hover:shadow-md"
             >
 
-              <div className="w-8 text-center text-lg font-bold text-slate-400">
-                #{index + 1}
-              </div>
+              {/* Mobile */}
 
-              {product.featured_image_url ? (
+              <div className="block md:hidden">
 
-                <img
-                  src={product.featured_image_url}
-                  alt={product.product_name}
-                  className="h-16 w-16 rounded-lg object-cover"
-                />
+                <div className="mb-4 flex items-start gap-4">
 
-              ) : (
+                  <div className="text-lg font-bold text-slate-400">
+                    #{index + 1}
+                  </div>
 
-                <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-slate-200 text-xs">
-                  No Image
-                </div>
+                  {product.featured_image_url ? (
 
-              )}
+                    <img
+                      src={product.featured_image_url}
+                      alt={product.product_name}
+                      className="h-20 w-20 rounded-lg object-cover"
+                    />
 
-              <div className="flex-1">
+                  ) : (
 
-                <h3 className="font-semibold">
-                  {product.product_name}
-                </h3>
+                    <div className="flex h-20 w-20 items-center justify-center rounded-lg bg-slate-200 text-xs">
+                      No Image
+                    </div>
 
-                <p className="text-xs text-slate-500">
-                  {product.product_code}
-                </p>
-
-              </div>
-
-              <div className="text-right">
-
-                <div className="text-sm">
-                  Sold
-                </div>
-
-                <div className="font-bold">
-                  {product.quantity_sold}
-                </div>
-
-              </div>
-
-              <div className="text-right">
-
-                <div className="text-sm">
-                  Revenue
-                </div>
-
-                <div className="font-semibold">
-                  ₹
-                  {product.revenue.toLocaleString(
-                    "en-IN"
                   )}
+
+                  <div className="min-w-0 flex-1">
+
+                    <h3 className="truncate font-semibold">
+                      {product.product_name}
+                    </h3>
+
+                    <p className="text-xs text-slate-500">
+                      {product.product_code}
+                    </p>
+
+                  </div>
+
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+
+                  <div className="rounded-lg bg-slate-50 p-3 text-center">
+
+                    <div className="text-xs text-slate-500">
+                      Sold
+                    </div>
+
+                    <div className="mt-1 font-bold">
+                      {product.quantity_sold}
+                    </div>
+
+                  </div>
+
+                  <div className="rounded-lg bg-slate-50 p-3 text-center">
+
+                    <div className="text-xs text-slate-500">
+                      Revenue
+                    </div>
+
+                    <div className="mt-1 font-semibold">
+                      ₹
+                      {product.revenue.toLocaleString(
+                        "en-IN"
+                      )}
+                    </div>
+
+                  </div>
+
+                  <div className="rounded-lg bg-green-50 p-3 text-center">
+
+                    <div className="text-xs text-slate-500">
+                      Profit
+                    </div>
+
+                    <div className="mt-1 font-semibold text-green-600">
+                      ₹
+                      {product.profit.toLocaleString(
+                        "en-IN"
+                      )}
+                    </div>
+
+                  </div>
+
                 </div>
 
               </div>
 
-              <div className="text-right">
+              {/* Desktop */}
 
-                <div className="text-sm">
-                  Profit
+              <div className="hidden items-center gap-4 md:flex">
+
+                <div className="w-10 text-center text-lg font-bold text-slate-400">
+                  #{index + 1}
                 </div>
 
-                <div className="font-semibold text-green-600">
-                  ₹
-                  {product.profit.toLocaleString(
-                    "en-IN"
-                  )}
+                {product.featured_image_url ? (
+
+                  <img
+                    src={product.featured_image_url}
+                    alt={product.product_name}
+                    className="h-16 w-16 rounded-lg object-cover"
+                  />
+
+                ) : (
+
+                  <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-slate-200 text-xs">
+                    No Image
+                  </div>
+
+                )}
+
+                <div className="flex-1">
+
+                  <h3 className="font-semibold">
+                    {product.product_name}
+                  </h3>
+
+                  <p className="text-xs text-slate-500">
+                    {product.product_code}
+                  </p>
+
+                </div>
+
+                <div className="text-right">
+
+                  <div className="text-sm text-slate-500">
+                    Sold
+                  </div>
+
+                  <div className="font-bold">
+                    {product.quantity_sold}
+                  </div>
+
+                </div>
+
+                <div className="text-right">
+
+                  <div className="text-sm text-slate-500">
+                    Revenue
+                  </div>
+
+                  <div className="font-semibold">
+                    ₹
+                    {product.revenue.toLocaleString(
+                      "en-IN"
+                    )}
+                  </div>
+
+                </div>
+
+                <div className="text-right">
+
+                  <div className="text-sm text-slate-500">
+                    Profit
+                  </div>
+
+                  <div className="font-semibold text-green-600">
+                    ₹
+                    {product.profit.toLocaleString(
+                      "en-IN"
+                    )}
+                  </div>
+
                 </div>
 
               </div>
 
             </div>
 
-          ))
+          ))}
 
-        )}
+        </div>
 
-      </div>
+      )}
 
     </section>
   );

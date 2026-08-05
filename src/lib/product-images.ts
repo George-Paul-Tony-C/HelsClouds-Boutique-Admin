@@ -24,35 +24,52 @@ export async function addProductImage(
   productId: string,
   imageUrl: string,
   cloudinaryPublicId: string,
-  displayOrder: number = 1
-) {
-  const { error } = await supabase
+  displayOrder: number
+): Promise<ProductImage> {
+  const { data, error } = await supabase
     .from("product_images")
     .insert({
       product_id: productId,
+
       image_url: imageUrl,
-      cloudinary_public_id: cloudinaryPublicId,
+
+      cloudinary_public_id:
+        cloudinaryPublicId,
+
+      alt_text: null,
+
       display_order: displayOrder,
+
       is_primary: false,
-    });
+    })
+    .select()
+    .single();
 
   if (error) throw error;
+
+  return data as ProductImage;
 }
 
 export async function updateProductImage(
   id: string,
   imageUrl: string,
   cloudinaryPublicId: string
-) {
-  const { error } = await supabase
+): Promise<ProductImage> {
+  const { data, error } = await supabase
     .from("product_images")
     .update({
       image_url: imageUrl,
-      cloudinary_public_id: cloudinaryPublicId,
+
+      cloudinary_public_id:
+        cloudinaryPublicId,
     })
-    .eq("id", id);
+    .eq("id", id)
+    .select()
+    .single();
 
   if (error) throw error;
+
+  return data as ProductImage;
 }
 
 export async function updateImageDisplayOrder(
@@ -73,12 +90,13 @@ export async function setPrimaryImage(
   productId: string,
   imageId: string
 ) {
-  const { error: resetError } = await supabase
-    .from("product_images")
-    .update({
-      is_primary: false,
-    })
-    .eq("product_id", productId);
+  const { error: resetError } =
+    await supabase
+      .from("product_images")
+      .update({
+        is_primary: false,
+      })
+      .eq("product_id", productId);
 
   if (resetError) throw resetError;
 

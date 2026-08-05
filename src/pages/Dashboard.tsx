@@ -12,6 +12,8 @@ import TopProducts from "@/components/dashboard/TopProducts";
 import { getDashboardData } from "@/lib/dashboard";
 
 import type { DashboardData } from "@/types/dashboard";
+import { error } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/error";
 
 export default function Dashboard() {
   const [dashboard, setDashboard] =
@@ -32,10 +34,10 @@ export default function Dashboard() {
         await getDashboardData();
 
       setDashboard(data);
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+        console.error(err);
 
-      alert("Failed to load dashboard.");
+        error(getErrorMessage(err));
     } finally {
       setLoading(false);
     }

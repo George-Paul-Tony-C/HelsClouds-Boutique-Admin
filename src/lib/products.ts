@@ -5,35 +5,55 @@ import { supabase } from "./supabase";
 import type {
   Product,
   ProductFormData,
+  ProductsResponse,
 } from "@/types/product";
 
-export async function getProducts(): Promise<Product[]> {
-  const { data, error } = await supabase
-    .from("products")
-    .select(`
-      *,
-      categories (
-        id,
-        name
+const PAGE_SIZE = 10;
+
+export async function getProducts(
+  page = 1
+): Promise<ProductsResponse> {
+  const from = (page - 1) * PAGE_SIZE;
+
+  const to = from + PAGE_SIZE - 1;
+
+  const { data, error, count } =
+    await supabase
+      .from("products")
+      .select(
+        `
+          *,
+          categories (
+            id,
+            name
+          )
+        `,
+        {
+          count: "exact",
+        }
       )
-    `)
-    .order("display_order", {
-      ascending: true,
-    });
+      .order("display_order", {
+        ascending: true,
+      })
+      .range(from, to);
 
   if (error) throw error;
 
-  return (data ?? []) as Product[];
+  return {
+    data: (data ?? []) as Product[],
+    total: count ?? 0,
+  };
 }
 
 export async function getProductById(
   id: string
 ): Promise<Product | null> {
-  const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("id", id)
-    .single();
+  const { data, error } =
+    await supabase
+      .from("products")
+      .select("*")
+      .eq("id", id)
+      .single();
 
   if (error) throw error;
 
@@ -43,42 +63,57 @@ export async function getProductById(
 export async function createProduct(
   product: ProductFormData
 ): Promise<Product> {
-  const { data, error } = await supabase
-    .from("products")
-    .insert({
-      product_code: product.product_code,
-      name: product.name,
-      slug: product.slug,
-      description: product.description,
+  const { data, error } =
+    await supabase
+      .from("products")
+      .insert({
+        product_code:
+          product.product_code,
 
-      cost_price: product.cost_price,
-      selling_price: product.selling_price,
+        name:
+          product.name,
 
-      category_id: product.category_id,
+        slug:
+          product.slug,
 
-      material: product.material,
-      color: product.color,
+        description:
+          product.description,
 
-      featured_image_url:
-        product.featured_image_url,
+        cost_price:
+          product.cost_price,
 
-      is_best_seller:
-        product.is_best_seller,
+        selling_price:
+          product.selling_price,
 
-      is_new_arrival:
-        product.is_new_arrival,
+        category_id:
+          product.category_id,
 
-      is_featured:
-        product.is_featured,
+        material:
+          product.material,
 
-      display_order:
-        product.display_order,
+        color:
+          product.color,
 
-      is_available:
-        product.is_available,
-    })
-    .select()
-    .single();
+        featured_image_url:
+          product.featured_image_url,
+
+        is_best_seller:
+          product.is_best_seller,
+
+        is_new_arrival:
+          product.is_new_arrival,
+
+        is_featured:
+          product.is_featured,
+
+        display_order:
+          product.display_order,
+
+        is_available:
+          product.is_available,
+      })
+      .select()
+      .single();
 
   if (error) throw error;
 
@@ -89,60 +124,61 @@ export async function updateProduct(
   id: string,
   product: ProductFormData
 ): Promise<Product> {
-  const { data, error } = await supabase
-    .from("products")
-    .update({
-      product_code:
-        product.product_code,
+  const { data, error } =
+    await supabase
+      .from("products")
+      .update({
+        product_code:
+          product.product_code,
 
-      name:
-        product.name,
+        name:
+          product.name,
 
-      slug:
-        product.slug,
+        slug:
+          product.slug,
 
-      description:
-        product.description,
+        description:
+          product.description,
 
-      cost_price:
-        product.cost_price,
+        cost_price:
+          product.cost_price,
 
-      selling_price:
-        product.selling_price,
+        selling_price:
+          product.selling_price,
 
-      category_id:
-        product.category_id,
+        category_id:
+          product.category_id,
 
-      material:
-        product.material,
+        material:
+          product.material,
 
-      color:
-        product.color,
+        color:
+          product.color,
 
-      featured_image_url:
-        product.featured_image_url,
+        featured_image_url:
+          product.featured_image_url,
 
-      is_best_seller:
-        product.is_best_seller,
+        is_best_seller:
+          product.is_best_seller,
 
-      is_new_arrival:
-        product.is_new_arrival,
+        is_new_arrival:
+          product.is_new_arrival,
 
-      is_featured:
-        product.is_featured,
+        is_featured:
+          product.is_featured,
 
-      display_order:
-        product.display_order,
+        display_order:
+          product.display_order,
 
-      is_available:
-        product.is_available,
+        is_available:
+          product.is_available,
 
-      updated_at:
-        new Date().toISOString(),
-    })
-    .eq("id", id)
-    .select()
-    .single();
+        updated_at:
+          new Date().toISOString(),
+      })
+      .eq("id", id)
+      .select()
+      .single();
 
   if (error) throw error;
 
@@ -152,7 +188,6 @@ export async function updateProduct(
 export async function deleteProduct(
   id: string
 ) {
-  // Delete gallery image records first
   const { error: imageError } =
     await supabase
       .from("product_images")
@@ -161,11 +196,11 @@ export async function deleteProduct(
 
   if (imageError) throw imageError;
 
-  // Delete product
-  const { error } = await supabase
-    .from("products")
-    .delete()
-    .eq("id", id);
+  const { error } =
+    await supabase
+      .from("products")
+      .delete()
+      .eq("id", id);
 
   if (error) throw error;
 }

@@ -1,4 +1,4 @@
-// File: src/types/product.ts
+// File: src/features/products/types.ts
 
 export interface Product {
   id: string;
@@ -11,17 +11,17 @@ export interface Product {
 
   description: string | null;
 
+  category_id: string;
+
   cost_price: number;
 
   selling_price: number;
-
-  category_id: string;
 
   material: string | null;
 
   color: string | null;
 
-  featured_image_url?: string;
+  featured_image_url: string | null;
 
   is_best_seller: boolean;
 
@@ -47,11 +47,11 @@ export interface ProductFormData {
 
   description: string;
 
+  category_id: string;
+
   cost_price: number;
 
   selling_price: number;
-
-  category_id: string;
 
   material: string;
 
@@ -59,13 +59,13 @@ export interface ProductFormData {
 
   featured_image_url: string;
 
+  display_order: number;
+
   is_best_seller: boolean;
 
   is_new_arrival: boolean;
 
   is_featured: boolean;
-
-  display_order: number;
 
   is_available: boolean;
 }
@@ -75,9 +75,9 @@ export interface ProductImage {
 
   product_id: string;
 
-  cloudinary_public_id: string;
-
   image_url: string;
+
+  cloudinary_public_id: string | null;
 
   alt_text: string | null;
 
@@ -86,4 +86,16 @@ export interface ProductImage {
   is_primary: boolean;
 
   created_at: string;
+}
+
+export interface ProductsResponse {
+  data: Product[];
+
+  total: number;
+}
+
+export interface UploadedImage {
+  imageUrl: string;
+
+  publicId: string;
 }

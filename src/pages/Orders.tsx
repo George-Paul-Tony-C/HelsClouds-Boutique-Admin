@@ -15,6 +15,8 @@ import type {
   Order,
   OrderStatus,
 } from "@/types/order";
+import { error } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/error";
 
 const statusStyles: Record<OrderStatus, string> = {
   pending:
@@ -60,10 +62,10 @@ export default function Orders() {
       const data = await getOrders();
 
       setOrders(data ?? []);
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+        console.error(err);
 
-      alert("Failed to load orders.");
+        error(getErrorMessage(err));
     } finally {
       setLoading(false);
     }

@@ -2,9 +2,15 @@
 
 import { useEffect, useState } from "react";
 
-import { Pencil, Trash2 } from "lucide-react";
+import {
+  Pencil,
+  Plus,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
-import ProductForm from "@/components/ProductForm";
+import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,303 +20,410 @@ import {
   getProducts,
 } from "@/lib/products";
 
+import {
+  error,
+  success,
+} from "@/lib/toast";
+
+import { getErrorMessage } from "@/lib/error";
+
 import type { Product } from "@/types/product";
-import ProductImages from "@/components/ProductImages";
+
+const PAGE_SIZE = 10;
 
 export default function Products() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const navigate = useNavigate();
 
-  const [selectedProduct, setSelectedProduct] =
-    useState<Product | null>(null);
+  const [products, setProducts] =
+    useState<Product[]>([]);
 
-  const [search, setSearch] = useState("");
+  const [search, setSearch] =
+    useState("");
 
   const [loading, setLoading] =
     useState(true);
 
+  const [page, setPage] =
+    useState(1);
+
+  const [total, setTotal] =
+    useState(0);
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(total / PAGE_SIZE)
+  );
+
   useEffect(() => {
     loadProducts();
-  }, []);
+  }, [page]);
 
   async function loadProducts() {
     try {
       setLoading(true);
 
-      const data = await getProducts();
+      const result =
+        await getProducts(page);
 
-      setProducts(data ?? []);
-    } catch (error) {
-      console.error(error);
+      setProducts(result.data);
 
-      alert("Failed to load products.");
+      setTotal(result.total);
+    } catch (err) {
+      console.error(err);
+
+      error(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
   }
 
-  async function handleDelete(id: string) {
-    const confirmed = window.confirm(
-      "Delete this product?"
-    );
-
-    if (!confirmed) return;
+  async function handleDelete(
+    id: string
+  ) {
+    if (
+      !window.confirm(
+        "Delete this product?"
+      )
+    ) {
+      return;
+    }
 
     try {
       await deleteProduct(id);
 
-      if (selectedProduct?.id === id) {
-        setSelectedProduct(null);
-      }
+      success(
+        "Product deleted successfully."
+      );
 
       await loadProducts();
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
 
-      alert("Failed to delete product.");
+      error(getErrorMessage(err));
     }
   }
 
-  const filteredProducts = products.filter(
-    (product) =>
-      product.name
-        .toLowerCase()
-        .includes(search.toLowerCase()) ||
-      product.product_code
-        .toLowerCase()
-        .includes(search.toLowerCase())
-  );
+  const filteredProducts =
+    products.filter(
+      (product) =>
+        product.name
+          .toLowerCase()
+          .includes(search.toLowerCase()) ||
+        product.product_code
+          .toLowerCase()
+          .includes(search.toLowerCase())
+    );
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1.6fr_450px]">
+    <section className="rounded-xl border bg-white p-4 md:p-6">
 
-      {/* LEFT */}
+      {/* Header */}
 
-      <section className="rounded-xl border bg-white p-6">
+      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
-        <div className="mb-6 flex items-center justify-between">
+        <div>
 
-          <div>
+          <h1 className="text-2xl font-bold">
+            Products
+          </h1>
 
-            <h1 className="text-2xl font-bold">
-              Products
-            </h1>
+          <p className="text-sm text-slate-500">
+            Manage boutique products.
+          </p>
 
-            <p className="text-sm text-slate-500">
-              Manage boutique products.
-            </p>
+        </div>
 
-          </div>
+        <Button
+          onClick={() =>
+            navigate("/products/new")
+          }
+        >
+
+          <Plus
+            size={18}
+            className="mr-2"
+          />
+
+          Add Product
+
+        </Button>
+
+      </div>
+
+      <Input
+        placeholder="Search products..."
+        className="mb-6"
+        value={search}
+        onChange={(e) =>
+          setSearch(e.target.value)
+        }
+      />
+
+      {/* Responsive Table */}
+
+      <div className="overflow-x-auto rounded-lg border">
+
+        <table className="min-w-[900px] w-full">
+
+          <thead className="bg-slate-100">
+
+            <tr>
+
+              <th className="px-4 py-3 text-left">
+                Image
+              </th>
+
+              <th className="px-4 py-3 text-left">
+                Code
+              </th>
+
+              <th className="px-4 py-3 text-left">
+                Product
+              </th>
+
+              <th className="px-4 py-3 text-left">
+                Price
+              </th>
+
+              <th className="px-4 py-3 text-left">
+                Status
+              </th>
+
+              <th className="px-4 py-3 text-center">
+                Actions
+              </th>
+
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+            {loading ? (
+
+              <tr>
+
+                <td
+                  colSpan={6}
+                  className="py-12 text-center"
+                >
+                  Loading...
+                </td>
+
+              </tr>
+
+            ) : filteredProducts.length ===
+              0 ? (
+
+              <tr>
+
+                <td
+                  colSpan={6}
+                  className="py-12 text-center text-slate-500"
+                >
+                  No products found.
+                </td>
+
+              </tr>
+
+            ) : (
+
+              filteredProducts.map(
+                (product) => (
+
+                  <tr
+                    key={product.id}
+                    className="border-t hover:bg-slate-50"
+                  >
+
+                    <td className="px-4 py-3">
+
+                      {product.featured_image_url ? (
+
+                        <img
+                          src={
+                            product.featured_image_url
+                          }
+                          alt={product.name}
+                          className="h-14 w-14 rounded-lg object-cover"
+                        />
+
+                      ) : (
+
+                        <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-slate-200 text-xs">
+                          No Image
+                        </div>
+
+                      )}
+
+                    </td>
+
+                    <td className="px-4 py-3">
+                      {product.product_code}
+                    </td>
+
+                    <td className="px-4 py-3">
+
+                      <div className="font-medium">
+                        {product.name}
+                      </div>
+
+                      <div className="text-xs text-slate-500">
+                        {product.slug}
+                      </div>
+
+                    </td>
+
+                    <td className="px-4 py-3">
+
+                      ₹
+                      {Number(
+                        product.selling_price
+                      ).toLocaleString(
+                        "en-IN",
+                        {
+                          minimumFractionDigits: 2,
+                        }
+                      )}
+
+                    </td>
+
+                    <td className="px-4 py-3">
+
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-medium ${
+                          product.is_available
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                        }`}
+                      >
+                        {product.is_available
+                          ? "Active"
+                          : "Inactive"}
+                      </span>
+
+                    </td>
+
+                    <td className="px-4 py-3">
+
+                      <div className="flex justify-center gap-2">
+
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          onClick={() =>
+                            navigate(
+                              `/products/${product.id}/edit`
+                            )
+                          }
+                        >
+
+                          <Pencil
+                            size={16}
+                          />
+
+                        </Button>
+
+                        <Button
+                          size="icon"
+                          variant="destructive"
+                          onClick={() =>
+                            handleDelete(
+                              product.id
+                            )
+                          }
+                        >
+
+                          <Trash2
+                            size={16}
+                          />
+
+                        </Button>
+
+                      </div>
+
+                    </td>
+
+                  </tr>
+
+                )
+              )
+
+            )}
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+      {/* Footer */}
+
+      <div className="mt-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+
+        <p className="text-sm text-slate-500">
+
+          Showing{" "}
+
+          {(page - 1) * PAGE_SIZE + 1}
+
+          -
+
+          {Math.min(
+            page * PAGE_SIZE,
+            total
+          )}
+
+          {" "}of {total} products
+
+        </p>
+
+        <div className="flex items-center gap-2">
 
           <Button
+            variant="outline"
+            disabled={page === 1}
             onClick={() =>
-              setSelectedProduct(null)
+              setPage(
+                (p) => p - 1
+              )
             }
           >
-            + Add Product
+
+            <ChevronLeft
+              size={18}
+            />
+
+          </Button>
+
+          <span className="px-4 text-sm font-medium">
+
+            {page} / {totalPages}
+
+          </span>
+
+          <Button
+            variant="outline"
+            disabled={
+              page === totalPages
+            }
+            onClick={() =>
+              setPage(
+                (p) => p + 1
+              )
+            }
+          >
+
+            <ChevronRight
+              size={18}
+            />
+
           </Button>
 
         </div>
 
-        <Input
-          placeholder="Search products..."
-          value={search}
-          onChange={(e) =>
-            setSearch(e.target.value)
-          }
-          className="mb-6"
-        />
+      </div>
 
-        <div className="overflow-hidden rounded-lg border">
-
-          <table className="w-full">
-
-            <thead className="bg-slate-100">
-
-              <tr>
-
-                <th className="px-4 py-3 text-left">
-                  Image
-                </th>
-
-                <th className="px-4 py-3 text-left">
-                  Code
-                </th>
-
-                <th className="px-4 py-3 text-left">
-                  Product
-                </th>
-
-                <th className="px-4 py-3 text-left">
-                  Price
-                </th>
-
-                <th className="px-4 py-3 text-left">
-                  Status
-                </th>
-
-                <th className="px-4 py-3 text-center">
-                  Actions
-                </th>
-
-              </tr>
-
-            </thead>
-
-            <tbody>
-
-              {loading ? (
-                <tr>
-
-                  <td
-                    colSpan={6}
-                    className="py-10 text-center"
-                  >
-                    Loading...
-                  </td>
-
-                </tr>
-              ) : filteredProducts.length === 0 ? (
-                <tr>
-
-                  <td
-                    colSpan={6}
-                    className="py-10 text-center text-slate-500"
-                  >
-                    No products found.
-                  </td>
-
-                </tr>
-              ) : (
-                filteredProducts.map(
-                  (product) => (
-                    <tr
-                      key={product.id}
-                      className="border-t hover:bg-slate-50"
-                    >
-
-                      <td className="px-4 py-3">
-
-                        {product.featured_image_url ? (
-                          <img
-                            src={
-                              product.featured_image_url
-                            }
-                            alt={product.name}
-                            className="h-14 w-14 rounded-lg object-cover"
-                          />
-                        ) : (
-                          <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-slate-200 text-xs">
-                            No Image
-                          </div>
-                        )}
-
-                      </td>
-
-                      <td className="px-4 py-3">
-                        {product.product_code}
-                      </td>
-
-                      <td className="px-4 py-3">
-
-                        <div className="font-medium">
-                          {product.name}
-                        </div>
-
-                        <div className="text-xs text-slate-500">
-                          {product.slug}
-                        </div>
-
-                      </td>
-
-                      <td className="px-4 py-3">
-                        ₹
-                        {product.selling_price.toFixed(
-                          2
-                        )}
-                      </td>
-
-                      <td className="px-4 py-3">
-
-                        <span
-                          className={`rounded-full px-3 py-1 text-xs font-medium ${
-                            product.is_available
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-700"
-                          }`}
-                        >
-                          {product.is_available
-                            ? "Active"
-                            : "Inactive"}
-                        </span>
-
-                      </td>
-
-                      <td className="px-4 py-3">
-
-                        <div className="flex justify-center gap-2">
-
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            onClick={() =>
-                              setSelectedProduct(
-                                product
-                              )
-                            }
-                          >
-                            <Pencil size={16} />
-                          </Button>
-
-                          <Button
-                            size="icon"
-                            variant="destructive"
-                            onClick={() =>
-                              handleDelete(
-                                product.id
-                              )
-                            }
-                          >
-                            <Trash2 size={16} />
-                          </Button>
-
-                        </div>
-
-                      </td>
-
-                    </tr>
-                  )
-                )
-              )}
-
-            </tbody>
-
-          </table>
-
-        </div>
-
-      </section>
-
-      {/* RIGHT */}
-
-      <div className="space-y-6">
-
-        <ProductForm
-            selectedProduct={selectedProduct}
-            onSuccess={async (product) => {
-                setSelectedProduct(product);
-
-                await loadProducts();
-            }}
-        />
-
-        {selectedProduct && (
-            <ProductImages
-                productId={selectedProduct.id}
-            />
-        )}
-
-    </div>
-
-    </div>
+    </section>
   );
 }

@@ -1,8 +1,14 @@
+// File: src/pages/Categories.tsx
+
 import { useEffect, useState } from "react";
 
-import { Pencil, Trash2 } from "lucide-react";
+import {
+  Pencil,
+  Plus,
+  Trash2,
+} from "lucide-react";
 
-import CategoryForm from "@/components/CategoryForm";
+import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,17 +18,22 @@ import {
   getCategories,
 } from "@/lib/categories";
 
-import { type Category } from "@/types/category";
+import { error, success } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/error";
+
+import type { Category } from "@/types/category";
 
 export default function Categories() {
-  const [categories, setCategories] = useState<Category[]>([]);
+  const navigate = useNavigate();
 
-  const [selectedCategory, setSelectedCategory] =
-    useState<Category | null>(null);
+  const [categories, setCategories] =
+    useState<Category[]>([]);
 
-  const [search, setSearch] = useState("");
+  const [search, setSearch] =
+    useState("");
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] =
+    useState(true);
 
   useEffect(() => {
     loadCategories();
@@ -32,19 +43,22 @@ export default function Categories() {
     try {
       setLoading(true);
 
-      const data = await getCategories();
+      const data =
+        await getCategories();
 
       setCategories(data ?? []);
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
 
-      alert("Failed to load categories.");
+      error(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
   }
 
-  async function handleDelete(id: string) {
+  async function handleDelete(
+    id: string
+  ) {
     if (
       !window.confirm(
         "Delete this category?"
@@ -56,36 +70,35 @@ export default function Categories() {
     try {
       await deleteCategory(id);
 
-      if (selectedCategory?.id === id) {
-        setSelectedCategory(null);
-      }
+      success(
+        "Category deleted successfully."
+      );
 
       await loadCategories();
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
 
-      alert("Failed to delete.");
+      error(getErrorMessage(err));
     }
   }
 
-  const filtered = categories.filter(
-    (category) =>
-      category.name
-        .toLowerCase()
-        .includes(search.toLowerCase()) ||
-      category.slug
-        .toLowerCase()
-        .includes(search.toLowerCase())
-  );
+  const filtered =
+    categories.filter(
+      (category) =>
+        category.name
+          .toLowerCase()
+          .includes(search.toLowerCase()) ||
+        category.slug
+          .toLowerCase()
+          .includes(search.toLowerCase())
+    );
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1.5fr_420px]">
-
-      {/* LEFT */}
+    <div>
 
       <section className="rounded-xl border bg-white p-6">
 
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
           <div>
 
@@ -101,26 +114,37 @@ export default function Categories() {
 
           <Button
             onClick={() =>
-              setSelectedCategory(null)
+              navigate(
+                "/categories/new"
+              )
             }
           >
-            + Add Category
+
+            <Plus
+              size={18}
+              className="mr-2"
+            />
+
+            Add Category
+
           </Button>
 
         </div>
 
         <Input
+          className="mb-6"
           placeholder="Search category..."
           value={search}
           onChange={(e) =>
-            setSearch(e.target.value)
+            setSearch(
+              e.target.value
+            )
           }
-          className="mb-6"
         />
 
-        <div className="overflow-hidden rounded-lg border">
+        <div className="overflow-x-auto rounded-lg border">
 
-          <table className="w-full">
+          <table className="min-w-full">
 
             <thead className="bg-slate-100">
 
@@ -153,6 +177,7 @@ export default function Categories() {
             <tbody>
 
               {loading ? (
+
                 <tr>
 
                   <td
@@ -163,7 +188,9 @@ export default function Categories() {
                   </td>
 
                 </tr>
+
               ) : filtered.length === 0 ? (
+
                 <tr>
 
                   <td
@@ -174,95 +201,122 @@ export default function Categories() {
                   </td>
 
                 </tr>
+
               ) : (
-                filtered.map((category) => (
-                  <tr
-                    key={category.id}
-                    className="border-t hover:bg-slate-50"
-                  >
 
-                    <td className="px-4 py-3">
+                filtered.map(
+                  (category) => (
 
-                      {category.image_url ? (
-                        <img
-                          src={category.image_url}
-                          alt={category.name}
-                          className="h-14 w-14 rounded-lg object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-slate-200 text-xs text-slate-500">
-                          No Image
+                    <tr
+                      key={
+                        category.id
+                      }
+                      className="border-t hover:bg-slate-50"
+                    >
+
+                      <td className="px-4 py-3">
+
+                        {category.image_url ? (
+
+                          <img
+                            src={
+                              category.image_url
+                            }
+                            alt={
+                              category.name
+                            }
+                            className="h-14 w-14 rounded-lg object-cover"
+                          />
+
+                        ) : (
+
+                          <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-slate-200 text-xs">
+                            No Image
+                          </div>
+
+                        )}
+
+                      </td>
+
+                      <td className="px-4 py-3">
+
+                        <div className="font-medium">
+                          {
+                            category.name
+                          }
                         </div>
-                      )}
 
-                    </td>
-
-                    <td className="px-4 py-3">
-
-                      <div className="font-medium">
-                        {category.name}
-                      </div>
-
-                      <div className="text-xs text-slate-500">
-                        {category.slug}
-                      </div>
-
-                    </td>
-
-                    <td className="px-4 py-3">
-                      {category.display_order}
-                    </td>
-
-                    <td className="px-4 py-3">
-
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-medium ${
-                          category.is_active
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
-                        }`}
-                      >
-                        {category.is_active
-                          ? "Active"
-                          : "Inactive"}
-                      </span>
-
-                    </td>
-
-                    <td className="px-4 py-3">
-
-                      <div className="flex justify-center gap-2">
-
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          onClick={() =>
-                            setSelectedCategory(
-                              category
-                            )
+                        <div className="text-xs text-slate-500">
+                          {
+                            category.slug
                           }
+                        </div>
+
+                      </td>
+
+                      <td className="px-4 py-3">
+                        {
+                          category.display_order
+                        }
+                      </td>
+
+                      <td className="px-4 py-3">
+
+                        <span
+                          className={`rounded-full px-3 py-1 text-xs font-medium ${
+                            category.is_active
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                          }`}
                         >
-                          <Pencil size={16} />
-                        </Button>
+                          {category.is_active
+                            ? "Active"
+                            : "Inactive"}
+                        </span>
 
-                        <Button
-                          size="icon"
-                          variant="destructive"
-                          onClick={() =>
-                            handleDelete(
-                              category.id
-                            )
-                          }
-                        >
-                          <Trash2 size={16} />
-                        </Button>
+                      </td>
 
-                      </div>
+                      <td className="px-4 py-3">
 
-                    </td>
+                        <div className="flex justify-center gap-2">
 
-                  </tr>
-                ))
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            onClick={() =>
+                              navigate(
+                                `/categories/${category.id}/edit`
+                              )
+                            }
+                          >
+
+                            <Pencil size={16} />
+
+                          </Button>
+
+                          <Button
+                            size="icon"
+                            variant="destructive"
+                            onClick={() =>
+                              handleDelete(
+                                category.id
+                              )
+                            }
+                          >
+
+                            <Trash2 size={16} />
+
+                          </Button>
+
+                        </div>
+
+                      </td>
+
+                    </tr>
+
+                  )
+                )
+
               )}
 
             </tbody>
@@ -272,17 +326,6 @@ export default function Categories() {
         </div>
 
       </section>
-
-      {/* RIGHT */}
-
-      <CategoryForm
-        selectedCategory={selectedCategory}
-        onSuccess={async () => {
-          setSelectedCategory(null);
-
-          await loadCategories();
-        }}
-      />
 
     </div>
   );

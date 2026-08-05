@@ -12,9 +12,13 @@ import Login from "@/pages/Login";
 import NotFound from "@/pages/NotFound";
 import Orders from "@/pages/Orders";
 import Products from "@/pages/Products";
+import ProductCreate from "@/pages/ProductCreate";
+import ProductEdit from "@/pages/ProductEdit";
 import Settings from "@/pages/Settings";
 
 import { ROUTES } from "@/constants/routes";
+import CategoryCreate from "./pages/CategoryCreate";
+import CategoryEdit from "./pages/CategoryEdit";
 
 export const router =
   createBrowserRouter([
@@ -35,38 +39,52 @@ export const router =
             {
               path: ROUTES.DASHBOARD,
 
-              element:
-                <Dashboard />,
+              element: <Dashboard />,
             },
 
             {
               path: ROUTES.PRODUCTS,
 
-              element:
-                <Products />,
+              element: <Products />,
             },
 
             {
-              path:
-                ROUTES.CATEGORIES,
+              path: ROUTES.PRODUCT_CREATE,
 
-              element:
-                <Categories />,
+              element: <ProductCreate />,
+            },
+
+            {
+              path: ROUTES.PRODUCT_EDIT,
+
+              element: <ProductEdit />,
+            },
+
+            {
+              path: ROUTES.CATEGORIES,
+
+              element: <Categories />,
             },
 
             {
               path: ROUTES.ORDERS,
 
-              element:
-                <Orders />,
+              element: <Orders />,
             },
 
             {
-              path:
-                ROUTES.SETTINGS,
+              path: ROUTES.SETTINGS,
 
-              element:
-                <Settings />,
+              element: <Settings />,
+            },
+            {
+              path: ROUTES.CATEGORY_CREATE,
+              element: <CategoryCreate />,
+            },
+
+            {
+              path: ROUTES.CATEGORY_EDIT,
+              element: <CategoryEdit />,
             },
           ],
         },

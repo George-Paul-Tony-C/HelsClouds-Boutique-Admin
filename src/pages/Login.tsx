@@ -17,6 +17,8 @@ import {
 } from "@/lib/auth";
 
 import { getProfile } from "@/lib/profile";
+import { error } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/error";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -44,8 +46,10 @@ export default function Login() {
         } else {
           await signOut();
         }
-      } catch (error) {
-        console.error(error);
+      } catch (err) {
+          console.error(err);
+
+          error(getErrorMessage(err));
       }
     }
     
@@ -91,14 +95,10 @@ export default function Login() {
       navigate(ROUTES.DASHBOARD, {
         replace: true,
       });
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+        console.error(err);
 
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Something went wrong."
-      );
+        error(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
