@@ -4,38 +4,35 @@ import { supabase } from "@/lib/supabase";
 
 import type { RecentOrder } from "@/types/dashboard";
 
-export async function getRecentOrders(): Promise<RecentOrder[]> {
-  const { data, error } = await supabase
-    .from("orders")
-    .select(`
-      id,
-      order_number,
-      total,
-      status,
-      created_at,
-      profile:profiles(
-        full_name
-      )
-    `)
-    .order("created_at", {
-      ascending: false,
-    })
-    .limit(10);
+export async function getRecentOrders(): Promise<
+  RecentOrder[]
+> {
+  const { data, error } =
+    await supabase.rpc(
+      "get_admin_orders"
+    );
 
   if (error) throw error;
 
-  return (data ?? []).map((order: any) => ({
-    id: order.id,
+  return (data ?? [])
+    .slice(0, 10)
+    .map((order: any) => ({
+      id: order.id,
 
-    order_number: order.order_number,
+      order_number:
+        order.order_number,
 
-    customer_name:
-      order.profile?.full_name ?? "Unknown",
+      customer_name:
+        order.customer_name,
 
-    total: Number(order.total),
+      total: Number(
+        order.total
+      ),
 
-    status: order.status,
+      status:
+        order.status,
 
-    created_at: order.created_at,
-  }));
+      created_at:
+        order.created_at,
+    }));
 }

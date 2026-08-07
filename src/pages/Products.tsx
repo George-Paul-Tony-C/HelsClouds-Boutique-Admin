@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import {
+  Eye,
   Pencil,
   Plus,
   Trash2,
@@ -241,16 +242,22 @@ export default function Products() {
                       {product.featured_image_url ? (
 
                         <img
-                          src={
-                            product.featured_image_url
-                          }
+                          src={product.featured_image_url}
                           alt={product.name}
-                          className="h-14 w-14 rounded-lg object-cover"
+                          onClick={() =>
+                            navigate(`/products/${product.id}`)
+                          }
+                          className="h-14 w-14 cursor-pointer rounded-lg object-cover transition hover:scale-105"
                         />
 
                       ) : (
 
-                        <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-slate-200 text-xs">
+                        <div
+                          onClick={() =>
+                            navigate(`/products/${product.id}`)
+                          }
+                          className="flex h-14 w-14 cursor-pointer items-center justify-center rounded-lg bg-slate-200 text-xs"
+                        >
                           No Image
                         </div>
 
@@ -264,13 +271,22 @@ export default function Products() {
 
                     <td className="px-4 py-3">
 
-                      <div className="font-medium">
-                        {product.name}
-                      </div>
+                      <button
+                        onClick={() =>
+                          navigate(`/products/${product.id}`)
+                        }
+                        className="text-left"
+                      >
 
-                      <div className="text-xs text-slate-500">
-                        {product.slug}
-                      </div>
+                        <div className="font-medium text-blue-600 hover:underline">
+                          {product.name}
+                        </div>
+
+                        <div className="text-xs text-slate-500">
+                          {product.slug}
+                        </div>
+
+                      </button>
 
                     </td>
 
@@ -311,32 +327,39 @@ export default function Products() {
                         <Button
                           size="icon"
                           variant="outline"
+                          title="View Product"
                           onClick={() =>
-                            navigate(
-                              `/products/${product.id}/edit`
-                            )
+                            navigate(`/products/${product.id}`)
                           }
                         >
 
-                          <Pencil
-                            size={16}
-                          />
+                          <Eye size={16} />
+
+                        </Button>
+
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          title="Edit Product"
+                          onClick={() =>
+                            navigate(`/products/${product.id}/edit`)
+                          }
+                        >
+
+                          <Pencil size={16} />
 
                         </Button>
 
                         <Button
                           size="icon"
                           variant="destructive"
+                          title="Delete Product"
                           onClick={() =>
-                            handleDelete(
-                              product.id
-                            )
+                            handleDelete(product.id)
                           }
                         >
 
-                          <Trash2
-                            size={16}
-                          />
+                          <Trash2 size={16} />
 
                         </Button>
 

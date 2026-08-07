@@ -1,3 +1,5 @@
+// File: src/router.tsx
+
 import {
   createBrowserRouter,
 } from "react-router-dom";
@@ -6,19 +8,26 @@ import ProtectedLayout from "@/components/ProtectedLayout";
 
 import AdminLayout from "@/layouts/AdminLayout";
 
+import { ROUTES } from "@/constants/routes";
+
 import Dashboard from "@/pages/Dashboard";
-import Categories from "@/pages/Categories";
+
 import Login from "@/pages/Login";
 import NotFound from "@/pages/NotFound";
-import Orders from "@/pages/Orders";
+
 import Products from "@/pages/Products";
 import ProductCreate from "@/pages/ProductCreate";
 import ProductEdit from "@/pages/ProductEdit";
-import Settings from "@/pages/Settings";
+import ProductDetails from "@/pages/ProductDetails";
 
-import { ROUTES } from "@/constants/routes";
-import CategoryCreate from "./pages/CategoryCreate";
-import CategoryEdit from "./pages/CategoryEdit";
+import Categories from "@/pages/Categories";
+import CategoryCreate from "@/pages/CategoryCreate";
+import CategoryEdit from "@/pages/CategoryEdit";
+
+import Orders from "@/pages/Orders";
+import OrderDetails from "@/pages/OrderDetails";
+
+import Settings from "@/pages/Settings";
 
 export const router =
   createBrowserRouter([
@@ -42,6 +51,10 @@ export const router =
               element: <Dashboard />,
             },
 
+            /*
+             * Products
+             */
+
             {
               path: ROUTES.PRODUCTS,
 
@@ -55,10 +68,20 @@ export const router =
             },
 
             {
+              path: ROUTES.PRODUCT_DETAILS,
+
+              element: <ProductDetails />,
+            },
+
+            {
               path: ROUTES.PRODUCT_EDIT,
 
               element: <ProductEdit />,
             },
+
+            /*
+             * Categories
+             */
 
             {
               path: ROUTES.CATEGORIES,
@@ -67,24 +90,41 @@ export const router =
             },
 
             {
+              path: ROUTES.CATEGORY_CREATE,
+
+              element: <CategoryCreate />,
+            },
+
+            {
+              path: ROUTES.CATEGORY_EDIT,
+
+              element: <CategoryEdit />,
+            },
+
+            /*
+             * Orders
+             */
+
+            {
               path: ROUTES.ORDERS,
 
               element: <Orders />,
             },
 
             {
+              path: ROUTES.ORDER_DETAILS,
+
+              element: <OrderDetails />,
+            },
+
+            /*
+             * Settings
+             */
+
+            {
               path: ROUTES.SETTINGS,
 
               element: <Settings />,
-            },
-            {
-              path: ROUTES.CATEGORY_CREATE,
-              element: <CategoryCreate />,
-            },
-
-            {
-              path: ROUTES.CATEGORY_EDIT,
-              element: <CategoryEdit />,
             },
           ],
         },

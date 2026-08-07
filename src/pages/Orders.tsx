@@ -2,23 +2,30 @@
 
 import { useEffect, useState } from "react";
 
-import { Eye } from "lucide-react";
+import {
+  Eye,
+} from "lucide-react";
+
+import {
+  useNavigate,
+} from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-import OrderDetails from "@/components/OrderDetails";
-
 import { getOrders } from "@/lib/orders";
+import { error } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/error";
 
 import type {
   Order,
   OrderStatus,
 } from "@/types/order";
-import { error } from "@/lib/toast";
-import { getErrorMessage } from "@/lib/error";
 
-const statusStyles: Record<OrderStatus, string> = {
+const statusStyles: Record<
+  OrderStatus,
+  string
+> = {
   pending:
     "bg-yellow-100 text-yellow-700",
 
@@ -39,11 +46,11 @@ const statusStyles: Record<OrderStatus, string> = {
 };
 
 export default function Orders() {
+  const navigate =
+    useNavigate();
+
   const [orders, setOrders] =
     useState<Order[]>([]);
-
-  const [selectedOrderId, setSelectedOrderId] =
-    useState<string | null>(null);
 
   const [search, setSearch] =
     useState("");
@@ -59,37 +66,45 @@ export default function Orders() {
     try {
       setLoading(true);
 
-      const data = await getOrders();
+      const data =
+        await getOrders();
 
       setOrders(data ?? []);
     } catch (err) {
-        console.error(err);
+      console.error(err);
 
-        error(getErrorMessage(err));
+      error(
+        getErrorMessage(err)
+      );
     } finally {
       setLoading(false);
     }
   }
 
-  const filteredOrders = orders.filter(
-    (order) =>
-      order.order_number
-        .toLowerCase()
-        .includes(search.toLowerCase()) ||
+  const filteredOrders =
+    orders.filter((order) => {
+      const query =
+        search.toLowerCase();
 
-      order.profile?.full_name
-        ?.toLowerCase()
-        .includes(search.toLowerCase())
-  );
+      return (
+        order.order_number
+          .toLowerCase()
+          .includes(query) ||
+        (
+          order.profile
+            ?.full_name ?? ""
+        )
+          .toLowerCase()
+          .includes(query)
+      );
+    });
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1.6fr_500px]">
+    <section className="rounded-xl border bg-white p-6">
 
-      {/* LEFT */}
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
-      <section className="rounded-xl border bg-white p-6">
-
-        <div className="mb-6">
+        <div>
 
           <h1 className="text-2xl font-bold">
             Orders
@@ -101,87 +116,92 @@ export default function Orders() {
 
         </div>
 
-        <Input
-          placeholder="Search order..."
-          className="mb-6"
-          value={search}
-          onChange={(e) =>
-            setSearch(e.target.value)
-          }
-        />
+      </div>
 
-        <div className="overflow-hidden rounded-lg border">
+      <Input
+        placeholder="Search order number or customer..."
+        className="mb-6"
+        value={search}
+        onChange={(e) =>
+          setSearch(
+            e.target.value
+          )
+        }
+      />
 
-          <table className="w-full">
+      <div className="overflow-x-auto rounded-lg border">
 
-            <thead className="bg-slate-100">
+        <table className="min-w-[900px] w-full">
+
+          <thead className="bg-slate-100">
+
+            <tr>
+
+              <th className="px-4 py-3 text-left">
+                Order
+              </th>
+
+              <th className="px-4 py-3 text-left">
+                Customer
+              </th>
+
+              <th className="px-4 py-3 text-left">
+                Total
+              </th>
+
+              <th className="px-4 py-3 text-left">
+                Status
+              </th>
+
+              <th className="px-4 py-3 text-center">
+                Action
+              </th>
+
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+            {loading ? (
 
               <tr>
 
-                <th className="px-4 py-3 text-left">
-                  Order
-                </th>
-
-                <th className="px-4 py-3 text-left">
-                  Customer
-                </th>
-
-                <th className="px-4 py-3 text-left">
-                  Total
-                </th>
-
-                <th className="px-4 py-3 text-left">
-                  Status
-                </th>
-
-                <th className="px-4 py-3 text-center">
-                  View
-                </th>
+                <td
+                  colSpan={5}
+                  className="py-12 text-center text-slate-500"
+                >
+                  Loading orders...
+                </td>
 
               </tr>
 
-            </thead>
+            ) : filteredOrders.length === 0 ? (
 
-            <tbody>
+              <tr>
 
-              {loading ? (
+                <td
+                  colSpan={5}
+                  className="py-12 text-center text-slate-500"
+                >
+                  No orders found.
+                </td>
 
-                <tr>
+              </tr>
 
-                  <td
-                    colSpan={5}
-                    className="py-10 text-center"
-                  >
-                    Loading...
-                  </td>
+            ) : (
 
-                </tr>
-
-              ) : filteredOrders.length === 0 ? (
-
-                <tr>
-
-                  <td
-                    colSpan={5}
-                    className="py-10 text-center text-slate-500"
-                  >
-                    No orders found.
-                  </td>
-
-                </tr>
-
-              ) : (
-
-                filteredOrders.map((order) => (
+              filteredOrders.map(
+                (order) => (
 
                   <tr
                     key={order.id}
                     className="border-t hover:bg-slate-50"
                   >
 
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-4">
 
-                      <div className="font-medium">
+                      <div className="font-semibold">
                         {order.order_number}
                       </div>
 
@@ -193,21 +213,37 @@ export default function Orders() {
 
                     </td>
 
-                    <td className="px-4 py-3">
-                      {order.profile?.full_name}
+                    <td className="px-4 py-4">
+
+                      <div className="font-medium">
+                        {order.profile
+                          ?.full_name ??
+                          "Unknown Customer"}
+                      </div>
+
+                      <div className="text-xs text-slate-500">
+                        {order.profile
+                          ?.email ??
+                          ""}
+                      </div>
+
                     </td>
 
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-4 font-medium">
+
                       ₹
-                      {Number(order.total).toLocaleString(
+                      {Number(
+                        order.total
+                      ).toLocaleString(
                         "en-IN",
                         {
                           minimumFractionDigits: 2,
                         }
                       )}
+
                     </td>
 
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-4">
 
                       <span
                         className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
@@ -224,7 +260,7 @@ export default function Orders() {
 
                     </td>
 
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-4">
 
                       <div className="flex justify-center">
 
@@ -232,12 +268,16 @@ export default function Orders() {
                           size="icon"
                           variant="outline"
                           onClick={() =>
-                            setSelectedOrderId(
-                              order.id
+                            navigate(
+                              `/orders/${order.id}`
                             )
                           }
                         >
-                          <Eye size={16} />
+
+                          <Eye
+                            size={16}
+                          />
+
                         </Button>
 
                       </div>
@@ -245,26 +285,17 @@ export default function Orders() {
                     </td>
 
                   </tr>
+                )
+              )
 
-                ))
+            )}
 
-              )}
+          </tbody>
 
-            </tbody>
+        </table>
 
-          </table>
+      </div>
 
-        </div>
-
-      </section>
-
-      {/* RIGHT */}
-
-      <OrderDetails
-        orderId={selectedOrderId}
-        onUpdated={loadOrders}
-      />
-
-    </div>
+    </section>
   );
 }
